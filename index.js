@@ -38,6 +38,7 @@ export function standardCssModules(
 	options = {
 		transformationMode: 'CSSStyleSheet',
 		filter: undefined,
+		ssrOnlyLit: false,
 		log: false,
 	},
 ) {
