@@ -187,7 +187,7 @@ Its documentation will bring you insights into the state of this API proposal.
 
 **Find this project useful?**
 
-[![GitHub](https://img.shields.io/badge/Star_me_on_GitHub-222222?logo=github&style=social)](https://github.com/JulianCataldo/remark-lint-frontmatter-schema)
+[![GitHub](https://img.shields.io/badge/Star_me_on_GitHub-222222?logo=github&style=social)](https://github.com/JulianCataldo/vite-plugin-standard-css-modules)
 
 </div>
 

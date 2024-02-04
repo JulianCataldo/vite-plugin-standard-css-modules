@@ -1,5 +1,5 @@
 ---
-import myStyles from "./my-styles.css" with { type: "css" };
+import myStyles from "../my-styles.css" with { type: "css" };
 
 // Automatic `CSSResult`.
 // When `ssrOnlyLit` is set to true, no `?lit` flag is needed.
@@ -30,8 +30,8 @@ console.log({ myStyles });
 </html>
 
 <script>
-	import myStyles from "./my-styles.css" with { type: "css" };
-	import myStylesLit from "./my-styles.css?lit" with { type: "css" };
+	import myStyles from "../my-styles.css" with { type: "css" };
+	import myStylesLit from "../my-styles.css?lit" with { type: "css" };
 
 	console.log({ myStyles }); // Yields a `CSSStyleSheet`
 	console.log({ myStylesLit }); // Yields a `CSSResult`
