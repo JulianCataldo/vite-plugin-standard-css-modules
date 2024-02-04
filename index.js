@@ -60,7 +60,9 @@ export function standardCssModules(
 			// so basic strings manipulations is fine for now.
 			const standardMode = id.endsWith('.css');
 			const litMode = id.endsWith('.css?lit');
-			const ssrAutoMode = options.ssrOnlyLit && rIdOptions.ssr;
+			const ssrAutoLitMode =
+				options.ssrOnlyLit &&
+				rIdOptions.ssr; /* If entry is requested from an SSR context. */
 
 			if (standardMode === false && litMode === false) return null;
 
@@ -70,8 +72,7 @@ export function standardCssModules(
 			if (options.log) console.info('CSS Modules (resolved)', filterParams);
 
 			let specialModeParameters = '';
-			if (litMode) specialModeParameters = '&lit';
-			if (ssrAutoMode) specialModeParameters = '&ssr_auto';
+			if (ssrAutoLitMode || litMode) specialModeParameters = '&lit';
 
 			const idWithQuery = `${id}?raw${specialModeParameters}`;
 
@@ -86,16 +87,15 @@ export function standardCssModules(
 
 			const standardMode = id.endsWith('.css?raw');
 			const litMode = id.endsWith('.css?raw&lit');
-			const ssrAutoMode = id.endsWith('.css?raw&ssr_auto');
-			if (standardMode === false && litMode === false && ssrAutoMode === false)
-				return null;
+
+			if (standardMode === false && litMode === false) return null;
 
 			if (options.log) console.info('CSS Modules (load)', { id });
 
 			// Get the `inline` result (parsed and minified by the Vite toolchain),
-			const requestId = id.replace(/\?(.*)$/, '?inline');
+			const requestIdInline = id.replace(/\?(.*)$/, '?inline');
 
-			const transformResult = await server.transformRequest(requestId);
+			const transformResult = await server.transformRequest(requestIdInline);
 			if (!transformResult) return null;
 
 			// Strips the enclosing ESM bootstrapping code.
@@ -106,7 +106,7 @@ export function standardCssModules(
 
 			// Swaps the raw string with our final CSS module
 
-			if (options.transformationMode === 'CSSResult' || ssrAutoMode) {
+			if (options.transformationMode === 'CSSResult' || litMode) {
 				const litCssResultModule =
 					`import {css} from 'lit';` + `export default css\`${code}\`;`;
 
