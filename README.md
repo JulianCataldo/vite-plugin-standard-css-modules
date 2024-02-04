@@ -1,6 +1,15 @@
 # vite-plugin-standard-css-modules
 
-Provide a `CSSStyleSheet` or a `CSSResult` (Lit) for use with [import attributes](https://tc39.es/proposal-import-attributes/).  
+[![NPM](https://img.shields.io/npm/v/vite-plugin-standard-css-modules)](https://www.npmjs.com/package/vite-plugin-standard-css-modules)
+![Downloads](https://img.shields.io/npm/dt/vite-plugin-standard-css-modules)
+[![ISC License](https://img.shields.io/npm/l/vite-plugin-standard-css-modules)](./LICENSE)
+[![GitHub](https://img.shields.io/badge/Repository-222222?logo=github)](https://github.com/JulianCataldo/vite-plugin-standard-css-modules)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen)](https://makeapullrequest.com)  
+[![TypeScript](https://img.shields.io/badge/TypeScript-333333?logo=typescript)](http://www.typescriptlang.org/)
+[![Prettier](https://img.shields.io/badge/Prettier-333333?logo=prettier)](https://prettier.io)
+[![EditorConfig](https://img.shields.io/badge/EditorConfig-333333?logo=editorconfig)](https://editorconfig.org)
+
+Provides a `CSSStyleSheet` or a `CSSResult` (Lit) for use with [import attributes](https://tc39.es/proposal-import-attributes/).  
 Using the "with" keyword and "type : css".
 
 ---
@@ -18,6 +27,41 @@ To be imported seamlessly, from your project or a dependency (mono-repo…).
 ---
 
 The API ensures strict defaults while allowing opt-in flexibility, especially for catering to Node usage.
+
+## Installation
+
+```
+npm i vite-plugin-standard-css-modules
+```
+
+Vite or compatible frameworks configuration:
+
+```ts
+import { standardCssModules } from 'vite-plugin-standard-css-modules';
+
+const myEnvironmentViteConfig = {
+	// ...
+
+	plugins: [
+		standardCssModules({
+			/* transformationMode: "CSSResult", */
+
+			filter: (params) => {
+				// console.log({ params });
+
+				// if (filePath === "foo") return false;
+				// if (params.ssr) return false;
+
+				return true;
+			},
+
+			/* log: false, */
+
+			ssrOnlyLit: true, // Removes the need for `?lit`, server-side.
+		}),
+	],
+};
+```
 
 ## Configuration
 
@@ -128,3 +172,25 @@ You just need the optional `lit` peer-dependency, if you're using `CSSResult` ov
 
 See also [rollup-plugin-css-modules](https://www.npmjs.com/package/rollup-plugin-css-modules).  
 Its documentation will bring you insights into the state of this API proposal.
+
+---
+
+**Other projects 👀**…
+
+- [retext-case-police](https://github.com/JulianCataldo/retext-case-police): Check popular names casing. Example: ⚠️ `github` → ✅ `GitHub`.
+- [remark-lint-frontmatter-schema](https://github.com/JulianCataldo/remark-lint-frontmatter-schema): Validate your Markdown **frontmatter** data against a **JSON schema**.
+- [JSON Schema Form Element](https://github.com/json-schema-form-element/jsfe): Effortless forms, with standards.
+
+---
+
+<div align="center">
+
+**Find this project useful?**
+
+[![GitHub](https://img.shields.io/badge/Star_me_on_GitHub-222222?logo=github&style=social)](https://github.com/JulianCataldo/remark-lint-frontmatter-schema)
+
+</div>
+
+---
+
+🔗  [JulianCataldo.com](https://www.juliancataldo.com)
