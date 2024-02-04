@@ -98,26 +98,27 @@ export function standardCssModules(
 			const transformResult = await server.transformRequest(requestId);
 			if (!transformResult) return null;
 
-			// Strip the enclosing ESM bootstrapping code.
+			// Strips the enclosing ESM bootstrapping code.
 			const code = transformResult.code.slice(
 				'export default "'.length,
 				-'"'.length,
 			);
 
 			// Swaps the raw string with our final CSS module
+
 			if (options.transformationMode === 'CSSResult' || ssrAutoMode) {
 				const litCssResultModule =
 					`import {css} from 'lit';` + `export default css\`${code}\`;`;
+
+				if (options.log) console.info(litCssResultModule);
 				return litCssResultModule;
 			}
-
 			const standardStylesheetModule =
 				`const stylesheet = new CSSStyleSheet();` +
 				`stylesheet.replaceSync(\`${code}\`);` +
 				`export default stylesheet;`;
 
 			if (options.log) console.info(standardStylesheetModule);
-
 			return standardStylesheetModule;
 		},
 	};
