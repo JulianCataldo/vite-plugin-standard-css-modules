@@ -1,0 +1,10 @@
+body {
+	font-family: system-ui;
+	color: bisque;
+	background-color: darkslategray;
+
+	/* Testing nesting, just to see… */
+	& h1 {
+		background-image: linear-gradient(to right, transparent, hsl(180, 71%, 7%));
+	}
+}

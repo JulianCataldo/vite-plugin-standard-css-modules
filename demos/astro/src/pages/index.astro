@@ -1,0 +1,46 @@
+---
+import myStyles from "./my-styles.css" with { type: "css" };
+
+// Automatic `CSSResult`.
+// When `ssrOnlyLit` is set to true, no `?lit` flag is needed.
+console.log({ myStyles });
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<title>Astro with vite-plugin-standard-css-modules</title>
+	</head>
+	<body>
+		<h1>Astro with <code>vite-plugin-standard-css-modules</code></h1>
+		<hr />
+
+		<h2>Client <code>CSSStyleSheet</code> rules</h2>
+		<pre id="clientStyleSheet"></pre>
+		<hr />
+		<h2>Client <code>CSSResult</code></h2>
+		<pre id="clientLitCss"></pre>
+		<hr />
+
+		<h2>Server <code>CSSResult</code></h2>
+		<!-- the `toString()` method is automatically called on `CSSResult` -->
+		<pre>${myStyles}</pre>
+	</body>
+</html>
+
+<script>
+	import myStyles from "./my-styles.css" with { type: "css" };
+	import myStylesLit from "./my-styles.css?lit" with { type: "css" };
+
+	console.log({ myStyles }); // Yields a `CSSStyleSheet`
+	console.log({ myStylesLit }); // Yields a `CSSResult`
+
+	document.adoptedStyleSheets = [...document.adoptedStyleSheets, myStyles];
+
+	[...myStyles.cssRules].forEach((rule) =>
+		document.querySelector("#clientStyleSheet")?.append(rule.cssText + "\n"),
+	);
+
+	document.querySelector("#clientLitCss")?.append(myStylesLit.toString());
+</script>
