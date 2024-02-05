@@ -4,14 +4,20 @@
  * SPDX-License-Identifier: ISC
  */
 /**
+ * @typedef {import("vite").Plugin<undefined>} VitePlugin
+ */
+/**
  * @typedef Options
  *
- * @property {TransformationMode} transformationMode
+ * @property {TransformationMode} [transformationMode]
  *
  * **Standard** or **Lit** output.
  *
  * - `CSSStyleSheet` (**default**) is agnostic, might not work with SSR.
  * - `CSSResult` is Lit specific, works with SSR.
+ *
+ * See also the {@link Options.ssrOnlyLit} option, or
+ * use the `?lit` import flag for finer grain control.
  *
  * @property {FilterAction} [filter]
  * @property {boolean} [ssrOnlyLit]
@@ -31,7 +37,7 @@
  */
 
 /**
- * @param {Options} options
+ * @param {Options} [options]
  * @returns {VitePlugin}
  * */
 export function standardCssModules(
@@ -42,16 +48,31 @@ export function standardCssModules(
 		log: false,
 	},
 ) {
-	/** @type {import("vite").ViteDevServer} */
-	let server;
+	/** @type {import("vite").ViteDevServer | undefined} */
+	let server = undefined;
 
 	return {
 		name: 'standard-css-modules',
 
 		enforce: 'pre', // NOTE: Doesn't seems to do anything, but just in case.
 
-		configureServer(s) {
-			server = s;
+		// NOTE: Only called with Vite dev. (aka serve) mode, not build.
+		configureServer(_server) {
+			server = _server;
+		},
+
+		async configResolved(config) {
+			// NOTE: `transformRequest` isn't available within the Vite/Rollup build.
+			if (config.command === 'build')
+				// HACK: Maybe? It might not be required to spin-up a server.
+				// See https://github.com/vitejs/vite/issues/3798#issuecomment-862185554
+				// We could leverage the Rollup cache?
+				server = await (
+					await import('vite')
+				).createServer({
+					clearScreen: false,
+					server: { middlewareMode: true },
+				});
 		},
 
 		resolveId(id, importer, rIdOptions) {
@@ -84,7 +105,7 @@ export function standardCssModules(
 		},
 
 		async load(id) {
-			if (!server) return null;
+			if (server === undefined) return null;
 
 			const standardMode = id.endsWith('.css?raw');
 			const litMode = id.endsWith('.css?raw&lit');
@@ -122,9 +143,10 @@ export function standardCssModules(
 			if (options.log) console.info(standardStylesheetModule);
 			return standardStylesheetModule;
 		},
+
+		buildEnd() {
+			// NOTE: Astro will kill the Dev Server after build, not Vite.
+			server?.close();
+		},
 	};
 }
-
-/**
- * @typedef {import("vite").Plugin} VitePlugin
- */
