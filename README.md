@@ -9,7 +9,7 @@
 [![Prettier](https://img.shields.io/badge/Prettier-333333?logo=prettier)](https://prettier.io)
 [![EditorConfig](https://img.shields.io/badge/EditorConfig-333333?logo=editorconfig)](https://editorconfig.org)
 
-Provides a `CSSStyleSheet` or a `CSSResult` (Lit) for use with [import attributes](https://tc39.es/proposal-import-attributes/).  
+Provides a CSSStyleSheet or a CSSResult (Lit) for use with [import attributes](https://tc39.es/proposal-import-attributes/).  
 Using the "with" keyword and "type : css".
 
 ---
