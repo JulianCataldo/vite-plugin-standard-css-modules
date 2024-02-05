@@ -1,0 +1,24 @@
+{
+  "name": "example",
+  "private": true,
+  "type": "module",
+  "description": "Vite Lit SSR example",
+  "author": "viks@google.com",
+  "license": "Apache-2.0",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "dev": "vite dev",
+    "build": "vite build ",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3",
+    "vite": "^5.0.12"
+  },
+  "dependencies": {
+    "lit": "^3.1.2",
+    "vite-plugin-standard-css-modules": "link:../.."
+  }
+}
