@@ -94,6 +94,7 @@ export function standardCssModules(
 			if (options.log) console.info('CSS Modules (resolved)', filterParams);
 
 			let specialModeParameters = '';
+			// NOTE: We could append / switch more derivations in the future.
 			if (ssrAutoLitMode || litMode) specialModeParameters = '&lit';
 
 			const idWithQuery = `${id}?raw${specialModeParameters}`;
@@ -135,17 +136,17 @@ export function standardCssModules(
 				if (options.log) console.info(litCssResultModule);
 				return litCssResultModule;
 			}
-			const standardStylesheetModule =
+			const standardStyleSheetModule =
 				`const stylesheet = new CSSStyleSheet();` +
 				`stylesheet.replaceSync(\`${code}\`);` +
 				`export default stylesheet;`;
 
-			if (options.log) console.info(standardStylesheetModule);
-			return standardStylesheetModule;
+			if (options.log) console.info(standardStyleSheetModule);
+			return standardStyleSheetModule;
 		},
 
 		buildEnd() {
-			// NOTE: Astro will kill the Dev Server after build, not Vite.
+			// NOTE: Astro will kill the (extra) dangling dev. server after build, not Vite.
 			server?.close();
 		},
 	};

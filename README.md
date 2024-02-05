@@ -152,7 +152,7 @@ I updated to the latest Lit 3 and Vite 5, and with minor Lit SSR syntax adaption
 Both of these setups, Homebrewed Lit SSR and Astro, are using `ssrLoadModuleLoader`.  
 Basically, you'll get an isomorphic experience thanks to Vite internal tooling which is smoothening environment gaps, minus unresolved DOM limitations in Node.
 
-### How it works?
+## How it works?
 
 `file.css` redirects to `file.css?raw` which by-pass all specific Vite handling.  
 Then `file.css?inline` is requested and injected back. This means you should get your usual Vite CSS handling at the end (think all the `post-css` stuff).
@@ -161,6 +161,14 @@ Then `file.css?inline` is requested and injected back. This means you should get
 
 Since the result is handled like any `?raw` imported module with Vite, it's not a "real", living CSS module.  
 See the `rollup-plugin-css-modules` documentation for more details about expected limitations, which are shared conceptually, with `vite-plugin-standard-css-modules`.
+
+## Known issues
+
+SSR is still rough.  
+The Vite Lit SSR demo is broken (it worked in the past). Dev. mode and client / server builds are OK, but we got a runtime crash.  
+Astro is fine in dev. / build, client / server, though.  
+Haven't tested deeper integration with Astro x Lit yet.
+Just minimal, readily available browser stuff.
 
 ## Footnotes
 
