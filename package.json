@@ -1,6 +1,6 @@
 {
   "name": "vite-plugin-standard-css-modules",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "Provide a CSSStyleSheet or a CSSResult (Lit) for using with import attributes.\nUsing the \"with\" keyword and \"type : css\".",
   "keywords": [
     "import-attributes",
@@ -8,7 +8,9 @@
     "native-css-modules",
     "with-type-css",
     "constructable-stylesheets",
-    "css-module-scripts"
+    "css-module-scripts",
+    "vite-plugin",
+    "withastro"
   ],
   "repository": "https://github.com/JulianCataldo/vite-plugin-standard-css-modules",
   "funding": {

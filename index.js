@@ -145,7 +145,7 @@ export function standardCssModules(
 			return standardStyleSheetModule;
 		},
 
-		buildEnd() {
+		closeBundle() {
 			// NOTE: Astro will kill the (extra) dangling dev. server after build, not Vite.
 			server?.close();
 		},
