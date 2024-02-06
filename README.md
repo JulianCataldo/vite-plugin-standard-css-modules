@@ -162,14 +162,6 @@ Then `file.css?inline` is requested and injected back. This means you should get
 Since the result is handled like any `?raw` imported module with Vite, it's not a "real", living CSS module.  
 See the `rollup-plugin-css-modules` documentation for more details about expected limitations, which are shared conceptually, with `vite-plugin-standard-css-modules`.
 
-## Known issues
-
-SSR is still rough.  
-The Vite Lit SSR demo is broken (it worked in the past). Dev. mode and client / server builds are OK, but we got a runtime crash.  
-Astro is fine in dev. / build, client / server, though.  
-Haven't tested deeper integration with Astro x Lit yet.
-Just minimal, readily available browser stuff.
-
 ## Footnotes
 
 100% ESM, **dependency-free**.

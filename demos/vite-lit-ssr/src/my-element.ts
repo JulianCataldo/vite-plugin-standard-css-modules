@@ -1,12 +1,10 @@
-import { LitElement, css, html, unsafeCSS } from 'lit';
+import { LitElement, html } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 
 import litLogo from './assets/lit.svg';
 import './my-child.js';
 
-import myStyles from './my-styles.css' with { type: 'css' };
-
-console.log({ myStyles });
+import myElementStyles from './my-element.css' with { type: 'css' };
 
 /**
  * An example element.
@@ -31,12 +29,11 @@ export class MyElement extends LitElement {
 	render() {
 		return html`
 			<div>
-				<div>Try disabling JS in your browser to check for SSR.</div>
 				<a href="https://vitejs.dev" target="_blank">
-					<img class="logo" src="/vite.svg" alt="Vite logo" />
+					<img src="/vite.svg" class="logo" alt="Vite logo" />
 				</a>
 				<a href="https://lit.dev" target="_blank">
-					<img class="logo lit" src=${litLogo} alt="Lit logo" />
+					<img src=${litLogo} class="logo lit" alt="Lit logo" />
 				</a>
 			</div>
 			<slot></slot>
@@ -47,10 +44,6 @@ export class MyElement extends LitElement {
 			</div>
 			<p class="read-the-docs">${this.docsHint}</p>
 			<my-child name="World!"></my-child>
-
-			<h1>Hey</h1>
-
-			<!-- <pre>$ {myStyles}</pre> -->
 		`;
 	}
 
@@ -58,79 +51,7 @@ export class MyElement extends LitElement {
 		this.count++;
 	}
 
-	static styles = [
-		myStyles,
-
-		css`
-			:host {
-				max-width: 1280px;
-				margin: 0 auto;
-				padding: 2rem;
-			}
-
-			.logo {
-				height: 6em;
-				padding: 1.5em;
-				will-change: filter;
-			}
-			.logo:hover {
-				filter: drop-shadow(0 0 2em #646cffaa);
-			}
-			.logo.lit:hover {
-				filter: drop-shadow(0 0 2em #325cffaa);
-			}
-
-			.card {
-				padding: 2em;
-			}
-
-			.read-the-docs {
-				color: #888;
-			}
-
-			h1 {
-				font-size: 3.2em;
-				line-height: 1.1;
-			}
-
-			a {
-				font-weight: 500;
-				color: #646cff;
-				text-decoration: inherit;
-			}
-			a:hover {
-				color: #535bf2;
-			}
-
-			button {
-				border-radius: 8px;
-				border: 1px solid transparent;
-				padding: 0.6em 1.2em;
-				font-size: 1em;
-				font-weight: 500;
-				font-family: inherit;
-				background-color: #1a1a1a;
-				cursor: pointer;
-				transition: border-color 0.25s;
-			}
-			button:hover {
-				border-color: #646cff;
-			}
-			button:focus,
-			button:focus-visible {
-				outline: 4px auto -webkit-focus-ring-color;
-			}
-
-			@media (prefers-color-scheme: light) {
-				a:hover {
-					color: #747bff;
-				}
-				button {
-					background-color: #f9f9f9;
-				}
-			}
-		`,
-	];
+	static styles = [myElementStyles];
 }
 
 declare global {

@@ -1,8 +1,8 @@
+import fs from 'fs';
+import path from 'path';
+import { Readable } from 'stream';
+import { fileURLToPath } from 'url';
 import express from 'express';
-import fs from 'node:fs';
-import path from 'node:path';
-import { Readable } from 'node:stream';
-import { fileURLToPath } from 'node:url';
 import { createServer as createViteServer } from 'vite';
 
 const SSR_OUTLET_MARKER = '<!--ssr-outlet-->';
@@ -44,8 +44,8 @@ async function createServer(
 				watch: {
 					// During tests we edit the files too fast and sometimes chokidar
 					// misses change events, so enforce polling for consistency
-					// usePolling: true,
-					// interval: 100,
+					usePolling: true,
+					interval: 100,
 				},
 				hmr: {
 					port: hmrPort,
@@ -108,7 +108,7 @@ async function createServer(
 
 			// 4. render the app HTML. This assumes entry-server.js's exported `render`
 			//    function calls appropriate framework SSR APIs.
-			const renderStream = render(url, { date: new Date().getTime() });
+			const renderStream = render(url);
 
 			// 5. Inject the app-rendered HTML into the template.
 			const output = Readable.from(concatStreams(pre, renderStream, post));

@@ -1,6 +1,6 @@
 {
   "name": "vite-plugin-standard-css-modules",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "Provide a CSSStyleSheet or a CSSResult (Lit) for using with import attributes.\nUsing the \"with\" keyword and \"type : css\".",
   "keywords": [
     "import-attributes",

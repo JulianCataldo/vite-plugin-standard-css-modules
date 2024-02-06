@@ -1,12 +1,12 @@
 import { LitElement, html } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 
-// import myStyles from './my-styles.css' with { type: 'css' };
+import myElementStyles from './my-element.css' with { type: 'css' };
+
+console.log({ fromChild: myElementStyles });
 
 @customElement('my-child')
 export class MyChild extends LitElement {
-	// static styles = [myStyles];
-
 	@property({ type: String })
 	name: string = '';
 
@@ -15,9 +15,7 @@ export class MyChild extends LitElement {
 	}
 
 	render() {
-		return html`<button class="my-button" @click=${this._click}>
-			Hello ${this.name}
-		</button>`;
+		return html`<button @click=${this._click}>Hello ${this.name}</button>`;
 	}
 }
 
