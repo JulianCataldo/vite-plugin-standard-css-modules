@@ -17,9 +17,9 @@ Using the "with" keyword and "type : css".
 Allows:
 
 ```ts
-import foo from './bar.css' with { type: 'css' };
-import foo from './bar.css' assert { type: 'css' }; // ⚠️ Deprecated
-import foo from './bar.css'; // ⚠️ Non-standard
+import myStyles1 from './my-styles-1.css' with { type: 'css' };
+import myStyles2 from './my-styles-2.css' assert { type: 'css' }; // ⚠️ Deprecated
+import myStyles3 from './my-styles-3.css'; // ⚠️ Non-standard
 ```
 
 To be imported seamlessly, from your project or a dependency (mono-repo…).
@@ -126,19 +126,29 @@ Firefox / Safari / Chromium are all supporting constructable stylesheets.
 ### IDE awareness
 
 ```ts
-// env.d.ts
+// ./src/vite-env.d.ts
+// or
+// ./src/env.d.ts
 
-declare module '*.css' {
-	const stylesheet: CSSStyleSheet;
-	export default stylesheet;
-}
+// Add this reference:
+/// <reference types="vite-plugin-standard-css-modules/css-modules" />
+// (Order matters with Astro)
 
-// Non-standard but required for SSR use
-declare module '*.css?lit' {
-	const stylesheet: import('lit').CSSResult;
-	export default stylesheet;
-}
+/// <reference types="vite/client" />
+//              (Or `astro/client`)
 ```
+
+That way,
+
+```ts
+import myElementStyles from './my-element.css' with { type: 'css' };
+import myElementStyles from './my-element.css?lit' with { type: 'css' };
+```
+
+- `./my-element.css` will be casted as `CSSStyleSheet`
+- `./my-element.css?lit` will be casted as `CSSResult`
+
+You can also append them manually in your `env.d.ts`, see [css-modules.d.ts](./css-modules.d.ts).
 
 ## Demo
 
