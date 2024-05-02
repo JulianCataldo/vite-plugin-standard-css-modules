@@ -65,51 +65,69 @@ const myEnvironmentViteConfig = {
 
 ## Configuration
 
-### `transformationMode`
+### `targetSsr`/`targetClient`
 
-`CSSStyleSheet` (**default**) is agnostic, and platform-native.  
+`CSSStyleSheet` (**default** for `targetClient`) is agnostic, and platform-native.  
 Might not work with **SSR** until JS server runtimes support this API or a working minimal implementation.
 
-`CSSResult` is Lit-specific. On the client, it can lazily provide a `CSSStyleSheet`.  
-Works with **SSR**.
+`CSSResult` (**default** for `targetSsr`) is Lit-specific. On the client, it can lazily provide a `CSSStyleSheet`.  
+Works with **SSR**. Set as **default** if executed in an SSR environment. That might change in the future, when Node will support `CSSStyleSheet`.
 
-### `filter`
+### `emptySsr`/`emptyClient` (`boolean`)
+
+Useful if, for example, you're using Lit hydration and don't want to load the style on client,
+since they are already provided in the Declarative Shadow Dom as a `<style>` tag. In that case,
+you'll set `emptyClient` to `true`, resulting in a dummy, empty stylesheet module.
+
+<!-- ### `filter`
 
 `(params: { id: string; importer?: string; ssr?: boolean }): boolean => myMatcher(filePath, myPatterns)`
 
-Provides a callback for selective CSS file handling.  
-From there, you can use your favorite glob paths matcher, like picomatch, minimatch…  
+Provides a callback for selective CSS file handling.
+From there, you can use your favorite glob paths matcher, like picomatch, minimatch…
 `ssr` is true when the import is from a server-side context.
 
-This hook is useful if you have some non-standards CSS imports you want to preserve, by migrating to the standard syntax, gradually.
+This hook is useful if you have some non-standards CSS imports you want to preserve, by migrating to the standard syntax, gradually. -->
 
-### `ssrOnlyLit`
+<!-- ### `ssrOnlyLit`
 
 `boolean` (default: `false`)
 
 Removes the need for the `?lit` query on the server to get a usable asset.
-By opting in, you'll get a `CSSStyleSheet` client side and a `CSSResult` while on the server-side, automatically.  
-All by using the same bare, query-less import (e.g. `./my-styles.css`).
+By opting in, you'll get a `CSSStyleSheet` client side and a `CSSResult` while on the server-side, automatically.
+All by using the same bare, query-less import (e.g. `./my-styles.css`). -->
+
+### `include`/`exclude` (`string[]`)
+
+Absolute glob patterns.  
+E.g. `include: ['**/src/features/counters/counters.scss']`
 
 ### Import flags
 
 #### `?lit`
 
-This plugin aims to get rid of non-standard import queries.  
-However, you'll find yourself obliged to use a `CSSResult` in a Node setup.  
-Until a leaner solution emerges, you can add the `?lit` flag on a per-file basis.  
-This can be useful if you want to do **server-side-only** stuff with some **client-side**
-leaves deeper in the tree, whereas the `transformationMode` shown above is all or nothing.
+<!-- This plugin aims to get rid of non-standard import queries.
+However, you'll find yourself obliged to use a `CSSResult` in a Node (SSR) setup.
+Until a leaner solution emerges, you can add the `?lit` flag on a per-file basis.   -->
+<!-- This can be useful if you want to do **server-side-only** stuff with some **client-side**
+leaves deeper in the tree, whereas the `transformationMode` shown above is all or nothing. -->
 
-For some reasons, like isomorphism, you might want a `CSSResult` on the client-side, but it's not needed otherwise.
-Lit handles those two shapes just fine, without intermediary steps.  
-It's possible to mix and fit them in the static `styles` of your custom element.
+```ts
+import myStyles1 from './my-styles-1.css?lit' with { type: 'css' };
+```
+
+Overrides `CSSStyleSheet` to `CSSResult` on a per-file basis.
+
+For some reasons, like isomorphism, you might want a `CSSResult` on the client side, but it's not needed otherwise.
+Lit (on browser) handles those two shapes just fine, without intermediary steps.  
+It's possible to mix and fit them in the static `styles` of your custom element.  
+Also, note that hydration alleviates the need for loading the CSS on the client too, hence the `emptyClient` option for that cases.
 
 ### SSR considerations with `CSSStyleSheet`
 
 If no DOM shims are present in your JS server runtime, you'll get a `CSSStyleSheet is not defined`.  
 With a DOM Shim (like the Lit SSR's one), you'll get a `replaceSync method is not defined`, because the `CSSStyleSheet` global object is empty.  
-Solution: use `CSSResult` here.
+Solution: use `CSSResult` here (it is set as the default with SSR).
 
 ## Environments
 
@@ -122,6 +140,10 @@ Tested with Node 20 (LTS) and 2024 majors browsers.
 Firefox / Safari / Chromium are all supporting constructable stylesheets.
 
 ## TypeScript
+
+## Pre/post processors
+
+Support all Vite's CSS pipelines and formats (PostCSS, Less, SASS…).
 
 ### IDE awareness
 
@@ -145,8 +167,8 @@ import myElementStyles from './my-element.css' with { type: 'css' };
 import myElementStyles from './my-element.css?lit' with { type: 'css' };
 ```
 
-- `./my-element.css` will be casted as `CSSStyleSheet`
-- `./my-element.css?lit` will be casted as `CSSResult`
+- `./my-element.css` will be cast as `CSSStyleSheet`
+- `./my-element.css?lit` will be cast as `CSSResult`
 
 You can also append them manually in your `env.d.ts`, see [css-modules.d.ts](./css-modules.d.ts).
 
@@ -171,6 +193,16 @@ Then `file.css?inline` is requested and injected back. This means you should get
 
 Since the result is handled like any `?raw` imported module with Vite, it's not a "real", living CSS module.  
 See the `rollup-plugin-css-modules` documentation for more details about expected limitations, which are shared conceptually, with `vite-plugin-standard-css-modules`.
+
+## Import Attributes
+
+For now, attributes are just "decorative", and act as a reminder for what is a standard CSS Module and what is
+not.  
+When Vite will support Import Attributes like Rollup and browsers, those flag will be leveraged and no `include`/`exclude` should be needed anymore.
+
+## Improvements
+
+- Support for relative globs in `include`/`exclude`
 
 ## Footnotes
 

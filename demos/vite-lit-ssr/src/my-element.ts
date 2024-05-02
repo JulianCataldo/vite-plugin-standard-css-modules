@@ -6,6 +6,8 @@ import './my-child.js';
 
 import myElementStyles from './my-element.css' with { type: 'css' };
 
+console.log({ myElementStyles });
+
 /**
  * An example element.
  *
@@ -44,6 +46,8 @@ export class MyElement extends LitElement {
 			</div>
 			<p class="read-the-docs">${this.docsHint}</p>
 			<my-child name="World!"></my-child>
+
+			${myElementStyles}
 		`;
 	}
 

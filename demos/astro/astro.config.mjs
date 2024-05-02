@@ -7,20 +7,7 @@ export default defineConfig({
 	vite: {
 		plugins: [
 			standardCssModules({
-				/* transformationMode: "CSSResult", */
-
-				filter: (params) => {
-					// console.log({ params });
-
-					// if (filePath === "foo") return false;
-					// if (params.ssr) return false;
-
-					return true;
-				},
-
-				/* log: false, */
-
-				ssrOnlyLit: true, // Removes the need for `?lit`, server-side.
+				include: ["**/src/*.css"],
 			}),
 		],
 	},

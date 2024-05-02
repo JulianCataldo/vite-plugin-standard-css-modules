@@ -1,8 +1,10 @@
 import { LitElement, css, html } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 
-import myStyles from './my-styles.css' with { type: 'css' };
-
+// import myStyles from './my-styles.css' with { type: 'css' };
+// import myStyles from './my-styles.scss?inline';
+// import myStyles from './my-styles.scss?lit' with { type: 'css' };
+import myStyles from './my-styles.scss' with { type: 'css' };
 console.log({ myStyles });
 
 /**
@@ -36,7 +38,9 @@ export class MyElement extends LitElement {
 
 			<h1>Hey</h1>
 
-			<pre>${myStyles}</pre>
+			<pre>
+${[...myStyles.cssRules].map((rule) => rule.cssText).join('\n')}</pre
+			>
 		`;
 	}
 
@@ -45,7 +49,7 @@ export class MyElement extends LitElement {
 	}
 
 	static styles = [
-		myStyles,
+		// myStyles,
 
 		css`
 			:host {

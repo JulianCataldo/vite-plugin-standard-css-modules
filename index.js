@@ -3,53 +3,80 @@
  * Julian Cataldo
  * SPDX-License-Identifier: ISC
  */
+
+import { createFilter, createServer, searchForWorkspaceRoot } from 'vite';
+
 /**
- * @typedef {import("vite").Plugin<undefined>} VitePlugin
+ * @typedef {import("vite").Plugin} VitePlugin
  */
 /**
  * @typedef Options
  *
- * @property {TransformationMode} [transformationMode]
- *
- * **Standard** or **Lit** output.
+ * **Standard** or **Lit** target.
  *
  * - `CSSStyleSheet` (**default**) is agnostic, might not work with SSR.
  * - `CSSResult` is Lit specific, works with SSR.
  *
- * See also the {@link Options.ssrOnlyLit} option, or
- * use the `?lit` import flag for finer grain control.
+ * See also the {@link Options.targetSsr}/{@link Options.targetClient} options,
+ * or use the `?lit` import flag for finer grain control.
  *
- * @property {FilterAction} [filter]
- * @property {boolean} [ssrOnlyLit]
+ * You can also chain this plugin multiple times with different
+ * \`include\`/\`exclude\` filters (resolves against absolute path module IDs).
  *
- * Force `CSSResult` if invoked in an SSR context, without the `?lit` flag.
+ * @property {TransformationTarget} [targetSsr]
+ * @property {TransformationTarget} [targetClient]
+ *
+ * @property {boolean} [emptySsr]
+ * @property {boolean} [emptyClient]
+ *
+ * @property {string[]} [include]
+ * @property {string[]} [exclude]
  *
  * @property {boolean} [log]
  *
- * @typedef {'CSSStyleSheet' | 'CSSResult'} TransformationMode
+ * @typedef {'CSSStyleSheet' | 'CSSResult' | 'empty'} TransformationTarget
  */
-/**
- * @typedef {(params: FilterActionParams) => boolean} FilterAction
- * @typedef FilterActionParams
- * @property {string} id
- * @property {string} [importer]
- * @property {boolean} [ssr]
- */
+
+const SUPPORTED_EXTENSIONS = [
+	'css',
+	'scss',
+	'sass',
+	'less',
+	'styl',
+	'stylus',
+	'pcss',
+	'sss',
+];
+
+/** @type {Options} */
+export const defaultOptions = {
+	targetSsr: 'CSSResult',
+	targetClient: 'CSSStyleSheet',
+
+	include: [`/**/*.{${SUPPORTED_EXTENSIONS.join(',')}}`],
+	exclude: [],
+
+	emptySsr: false,
+	emptyClient: false,
+
+	log: false,
+};
 
 /**
  * @param {Options} [options]
  * @returns {VitePlugin}
  * */
-export function standardCssModules(
-	options = {
-		transformationMode: 'CSSStyleSheet',
-		filter: undefined,
-		ssrOnlyLit: false,
-		log: false,
-	},
-) {
+export function standardCssModules(options) {
 	/** @type {import("vite").ViteDevServer | undefined} */
 	let server = undefined;
+
+	const root = searchForWorkspaceRoot(process.cwd());
+
+	console.log(root);
+	const filter = createFilter(
+		options?.include ?? defaultOptions.include,
+		options?.exclude ?? defaultOptions.exclude,
+	);
 
 	return {
 		name: 'standard-css-modules',
@@ -67,81 +94,111 @@ export function standardCssModules(
 				// HACK: Maybe? It might not be required to spin-up a server.
 				// See https://github.com/vitejs/vite/issues/3798#issuecomment-862185554
 				// We could leverage the Rollup cache?
-				server = await (
-					await import('vite')
-				).createServer({
+				server = await createServer({
 					clearScreen: false,
 					server: { middlewareMode: true },
 				});
 		},
 
-		resolveId(id, importer, rIdOptions) {
-			// NOTE: Very naive checks.
-			// Could use URLSearchParams, robust Regexes, Vite metadata…
-			// User shouldn't be messing around much with query combinations, though,
-			// so basic strings manipulations is fine for now.
-			const standardMode = id.endsWith('.css');
-			const litMode = id.endsWith('.css?lit');
-			const ssrAutoLitMode =
-				options.ssrOnlyLit &&
-				rIdOptions.ssr; /* If entry is requested from an SSR context. */
+		async resolveId(id, importer, rIdOptions) {
+			const modulePath = await this.resolve(id, importer);
 
-			if (standardMode === false && litMode === false) return null;
+			const [idNoParams, params] = modulePath?.id.split('?') ?? [];
 
-			const filterParams = { id, importer, ssr: rIdOptions.ssr };
-			if (options.filter?.(filterParams) === false) return null;
+			// const idRelative = idNoParams.replace(process.cwd(), '');
+			if (!modulePath?.id || filter(idNoParams) === false) return null;
 
-			if (options.log) console.info('CSS Modules (resolved)', filterParams);
+			console.log({ modulePath });
+			const searchParams = new URLSearchParams(params);
+			searchParams.set('raw', '');
+			searchParams.set('cssStandardModule', '');
 
-			let specialModeParameters = '';
-			// NOTE: We could append / switch more derivations in the future.
-			if (ssrAutoLitMode || litMode) specialModeParameters = '&lit';
+			const target = rIdOptions.ssr
+				? options?.targetSsr || defaultOptions.targetSsr
+				: options?.targetClient || defaultOptions.targetClient;
 
-			const idWithQuery = `${id}?raw${specialModeParameters}`;
+			const empty = rIdOptions.ssr
+				? options?.emptySsr || defaultOptions.emptySsr
+				: options?.emptyClient || defaultOptions.emptyClient;
 
-			// We're doing a re-route to `?raw`, which is the only one we can trick.
-			// NOTE: `?inline` is not working, it triggers `postcss`.
-			// See also: https://github.com/vitejs/vite/issues/9465#issuecomment-1418629015
-			return this.resolve(idWithQuery, importer);
+			if (target === 'CSSResult') searchParams.set('lit', '');
+			if (empty) searchParams.set('empty', '');
+
+			modulePath.id = `${idNoParams}?${searchParams}`;
+
+			if (options?.log)
+				console.info('CSS Modules (resolved)', {
+					modulePath,
+					importer,
+					rIdOptions,
+				});
+
+			console.log({ modulePath });
+			return modulePath;
 		},
 
 		async load(id) {
 			if (server === undefined) return null;
 
-			const standardMode = id.endsWith('.css?raw');
-			const litMode = id.endsWith('.css?raw&lit');
+			const [idNoParams, params] = id.split('?') ?? [];
 
-			if (standardMode === false && litMode === false) return null;
+			const searchParams = new URLSearchParams(params);
 
-			if (options.log) console.info('CSS Modules (load)', { id });
+			// NOTE: `direct` or `inline`? Seems to do the same.
+			if (searchParams.has('direct')) return;
+			if (searchParams.has('cssStandardModule') === false) return;
 
-			// Get the `inline` result (parsed and minified by the Vite toolchain),
-			const requestIdInline = id.replace(/\?(.*)$/, '?inline');
+			const litMode = searchParams.has('lit');
+			const emptyMode = searchParams.has('empty');
 
+			if (options?.log) console.info('CSS Modules (load)', { id });
+
+			const requestIdInline = idNoParams + '?direct';
 			const transformResult = await server.transformRequest(requestIdInline);
+
 			if (!transformResult) return null;
 
-			// Strips the enclosing ESM bootstrapping code.
-			const code = transformResult.code.slice(
-				'export default "'.length,
-				-'"'.length,
-			);
+			// NOTE: NOT NEEDED ANYMORE?
+			// // Strips the enclosing ESM bootstrapping code.
+			// const code = transformResult.code.slice(
+			// 	'export default "'.length,
+			// 	-'"'.length,
+			// );
+			const code = transformResult.code;
 
 			// Swaps the raw string with our final CSS module
 
-			if (options.transformationMode === 'CSSResult' || litMode) {
+			if (litMode) {
+				if (emptyMode) {
+					const litCssResultModule =
+						`import {css} from 'lit';` +
+						`export default css\`${'/* emptied */'}\`;`;
+
+					if (options?.log) console.info(litCssResultModule);
+					return litCssResultModule;
+				}
 				const litCssResultModule =
 					`import {css} from 'lit';` + `export default css\`${code}\`;`;
 
-				if (options.log) console.info(litCssResultModule);
+				return litCssResultModule;
+			}
+
+			if (emptyMode) {
+				const litCssResultModule =
+					`const stylesheet = new CSSStyleSheet();` +
+					`export default stylesheet;`;
+
+				if (options?.log) console.info(litCssResultModule);
 				return litCssResultModule;
 			}
 			const standardStyleSheetModule =
 				`const stylesheet = new CSSStyleSheet();` +
 				`stylesheet.replaceSync(\`${code}\`);` +
 				`export default stylesheet;`;
+			if (options?.log) console.info(standardStyleSheetModule);
 
-			if (options.log) console.info(standardStyleSheetModule);
+			console.log({ transformResult, code });
+
 			return standardStyleSheetModule;
 		},
 
